@@ -1,4 +1,3 @@
-using System.Text.Json;
 using backend.Models;
 using Google.GenAI;
 using Google.GenAI.Types;
@@ -94,55 +93,6 @@ public class GeminiProvider : ILlmProvider
             throw new LlmTriageException("Volání Gemini API selhalo.", ex);
         }
 
-        return ParseTriageResult(json);
-    }
-
-    private static TriageResult ParseTriageResult(string json)
-    {
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            var categoryText = root.GetProperty("category").GetString();
-            var priorityText = root.GetProperty("priority").GetString();
-            var suggestedResponse = root.GetProperty("suggested_response").GetString();
-
-            if (string.IsNullOrWhiteSpace(categoryText) ||
-                string.IsNullOrWhiteSpace(priorityText) ||
-                string.IsNullOrWhiteSpace(suggestedResponse))
-            {
-                throw new LlmTriageException("Gemini vrátil neúplný JSON.");
-            }
-
-            if (!Enum.TryParse<TicketCategory>(categoryText, ignoreCase: true, out var category))
-            {
-                throw new LlmTriageException($"Gemini vrátil neznámou kategorii: '{categoryText}'.");
-            }
-
-            if (!Enum.TryParse<TicketPriority>(priorityText, ignoreCase: true, out var priority))
-            {
-                throw new LlmTriageException($"Gemini vrátil neznámou prioritu: '{priorityText}'.");
-            }
-
-            return new TriageResult
-            {
-                Category = category,
-                Priority = priority,
-                SuggestedResponse = suggestedResponse
-            };
-        }
-        catch (JsonException ex)
-        {
-            throw new LlmTriageException("Gemini vrátil nevalidní JSON.", ex);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            throw new LlmTriageException("Gemini vrátil JSON s chybějícími poli.", ex);
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new LlmTriageException("Gemini vrátil JSON s chybějícími poli.", ex);
-        }
+        return TriageResultParser.Parse(json);
     }
 }
