@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,20 @@ namespace backend.Controllers;
 public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly ILlmProvider _llmProvider;
 
-    public TicketsController(AppDbContext context)
+    public TicketsController(AppDbContext context, ILlmProvider llmProvider)
     {
         _context = context;
+        _llmProvider = llmProvider;
+    }
+
+    // DEBUG: docasny endpoint pro testovani promptu, bez error handlingu
+    [HttpPost("debug-triage")]
+    public async Task<ActionResult<TriageResult>> DebugTriage([FromBody] string description)
+    {
+        var result = await _llmProvider.TriageAsync(description);
+        return result;
     }
 
     [HttpGet]
