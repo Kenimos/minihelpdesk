@@ -4,19 +4,18 @@ Log promptů, rozhodnutí a postřehů z vývoje s AI asistencí (Claude Code + 
 
 ## Obsah
 
-1. [Zadání](#1-zadání)
+1. [Zadání pro Claude Code](#1-zadání-pro-claude-code)
 2. [Jak jsem pracoval — nástroje](#2-jak-jsem-pracoval--nástroje)
 3. [Klíčové prompty a rozhodnutí](#3-klíčové-prompty-a-rozhodnutí)
 4. [Systémový prompt pro AI triáž](#4-systémový-prompt-pro-ai-triáž)
 5. [Test odolnosti — prompt injection](#5-test-odolnosti--prompt-injection)
 6. [AI halucinace / chyby](#6-ai-halucinace--chyby)
 7. [Testy](#7-testy)
-8. [Architektonický dluh](#8-architektonický-dluh)
-9. [Poměr práce AI:Já](#9-poměr-práce-aija)
+8. [Poměr práce AI:Já](#8-poměr-práce-aija)
 
 ---
 
-## 1. Zadání
+## 1. Zadání pro Claude Code
 
 Původní zadání úkolu, tak jak jsem ho dostal:
 
@@ -162,42 +161,11 @@ nezmínil — u produkčního review bych to bral jako věc k vyškrtnutí, ne k
 řádku, ne jen otestovat, že to funguje — jinak se do projektu vplíží drobnosti, které jsem 
 nikdy neschválil.
 
+### AI halucinace #4 Recenze na README
+Ptal jsem se Claude jestli je v pořádku moje README.md akorát z nějakého důvodu nic neviděl a začal halucinovat, že píšu něco o tom, že jsem dělal testy ručně přitom jsem tam nic takového napsaného neměl.
 ---
 
-## 7. Testy
-
-Unit testy najdete v `backend.Tests/`.
-
-Spustit:
-```bash
-dotnet test
-```
-
-Výstup:
-```
-Starting test execution, please wait...
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 4 ms - backend.Tests.dll (net8.0)
-```
-
-Testy pokrývají parser LLM odpovědi (`TriageResultParser`) — happy path, nevalidní JSON, prázdná/null odpověď a neznámé hodnoty enumu, viz `README.md` pro detaily.
-
----
-
-## 8. Architektonický dluh
-
-Věci, které bych v reálném/větším projektu udělal jinak, ale pro rozsah tohoto úkolu (vstupní test, ne produkční systém) jsem se jim vědomě vyhnul:
-
-**Databázový model — historie zpráv u ticketu.** Teď je ticket čistě "jedna zpráva → jedna odpověď": AI vygeneruje návrh, agent ho případně upraví do `FinalResponse`, a tím ticket končí. V reálném provozu ale dopisování s uživatelem často trvá déle a řeší se přes víc zpráv tam a zpět. Řešení by bylo přidat samostatnou entitu/tabulku pro historii zpráv navázanou na ticket (1:N vztah), místo jednoho pole `FinalResponse` na ticketu.
-
-**Oddělení rolí uživatelů.** Aktuálně appka nerozlišuje, kdo je klient (ten, kdo ticket založil) a kdo je support/agent (ten, kdo ho řeší). Pro větší projekt by dávalo smysl mít tyhle dvě role oddělené jako samostatné entity/účty s jinými oprávněními, ne jen implicitně "kdokoliv může cokoliv".
-
-**SQLite vs. PostgreSQL.** Pro produkční/větší projekt bych rozhodně sáhl po PostgreSQL v Dockeru. Tady jsem to záměrně nepoužil — pro tenhle rozsah je SQLite ideální: zbavím se zbytečného nastavování Dockeru a starosti o infrastrukturu navíc, a díky EF Core je to velmi jednoduše vyměnitelné do budoucna (stačí změnit provider a connection string). Pro účely testování a vstupního úkolu je to podle mě optimální volba, přechod na PostgreSQL nebo MySQL později by nebyl velký zásah.
-
----
-
-## 9. Poměr práce AI:Já
+## 7. Poměr práce AI:Já
 
 Rozlišuju dvě různé věci — kdo fyzicky psal kód, a kdo řídil, kam se projekt vyvíjí. Ty dvě čísla se dost liší.
 
