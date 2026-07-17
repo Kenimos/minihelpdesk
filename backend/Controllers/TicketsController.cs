@@ -48,10 +48,38 @@ public class TicketsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Ticket>> CreateTicket(Ticket ticket)
     {
+        // ticket ulozime hned, aby existoval v DB i kdyz AI triaz selze
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
+        await RunTriageAsync(ticket);
+
         return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
+    }
+
+    [HttpPost("{id}/recall-llm")]
+    public async Task<ActionResult<Ticket>> RecallLlm(int id)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        await RunTriageAsync(ticket);
+
+        return ticket;
+    }
+
+    private async Task RunTriageAsync(Ticket ticket)
+    {
+        var result = await _llmProvider.TriageAsync(ticket.Description);
+
+        ticket.Category = result.Category;
+        ticket.Priority = result.Priority;
+        ticket.SuggestedResponse = result.SuggestedResponse;
+
+        await _context.SaveChangesAsync();
     }
 
     [HttpPatch("{id}/status")]
