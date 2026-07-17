@@ -127,7 +127,7 @@ Vyzkoušel jsem, jestli LLM ustojí manipulativní vstup přímo v popisu ticket
 
 Na začátku jsem zadal, že má Claude Code udělat základní CRUD operace, ale úplně vynechalo **DELETE** — zjistil jsem to až po hodině a půl práce na dalších částech. Poučení: i při jasně vyjmenovaném požadavku ("základní CRUD") je potřeba zkontrolovat, že AI skutečně pokrylo všechny operace, ne se spolehnout na to, že "CRUD" implikuje kompletnost.
 
-### AI halucinace #2 a jak si s tím agent poradil
+### AI halucinace #1 a jak si s tím agent poradil
 
 Všiml jsem si, že Claude Code při zapojování knihovny `Google.GenAI` bojoval 
 se `Schema.Type` — generoval hodnoty jako `Type.OBJECT` / `Type.STRING` (jako by 
@@ -145,7 +145,7 @@ instrukci hned.
 navést agenta konkrétněji rovnou na začátku (např. odkázat na dokumentaci nebo dát 
 příklad správného použití), aby zbytečně dlouho netápal metodou pokus-omyl.
 
-### AI halucinace #3 — nezadaná funkce navíc (scope creep)
+### AI halucinace #2 — nezadaná funkce navíc (scope creep)
 
 Když jsem žádal převod filtru stavu/kategorie z rozbalovacích menu na toggle tlačítka, 
 Claude Code do UI přidal navíc i tlačítko "vymazat" pro rychlé zrušení aktivních filtrů 
@@ -161,8 +161,10 @@ nezmínil — u produkčního review bych to bral jako věc k vyškrtnutí, ne k
 řádku, ne jen otestovat, že to funguje — jinak se do projektu vplíží drobnosti, které jsem 
 nikdy neschválil.
 
-### AI halucinace #4 Recenze na README
+### AI halucinace #3 Recenze na README
+
 Ptal jsem se Claude jestli je v pořádku moje README.md akorát z nějakého důvodu nic neviděl a začal halucinovat, že píšu něco o tom, že jsem dělal testy ručně přitom jsem tam nic takového napsaného neměl.
+
 ---
 
 ## 7. Poměr práce AI:Já
