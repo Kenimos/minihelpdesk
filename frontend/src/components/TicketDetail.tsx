@@ -28,6 +28,7 @@ export function TicketDetail({
 }: TicketDetailProps) {
   const [finalResponse, setFinalResponse] = useState(ticket.finalResponse ?? ticket.suggestedResponse ?? '');
   const [isSavingResponse, setIsSavingResponse] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [isRecalling, setIsRecalling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +53,21 @@ export function TicketDetail({
       setError(err instanceof Error ? err.message : 'Uložení odpovědi selhalo.');
     } finally {
       setIsSavingResponse(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!ticket.suggestedResponse) return;
+
+    setError(null);
+    setIsApproving(true);
+    try {
+      await onSaveFinalResponse(ticket.suggestedResponse);
+      setFinalResponse(ticket.suggestedResponse);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Schválení odpovědi selhalo.');
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -144,6 +160,14 @@ export function TicketDetail({
             <p className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
               {ticket.suggestedResponse ?? 'AI zatím nevygenerovala žádný návrh.'}
             </p>
+            <button
+              type="button"
+              onClick={handleApprove}
+              disabled={!ticket.suggestedResponse || isApproving || isSavingResponse}
+              className="mt-2 rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+            >
+              {isApproving ? 'Schvaluji…' : 'Schválit návrh AI'}
+            </button>
           </div>
 
           <div>
@@ -160,7 +184,7 @@ export function TicketDetail({
             <button
               type="button"
               onClick={handleSaveResponse}
-              disabled={isSavingResponse}
+              disabled={isSavingResponse || isApproving}
               className="mt-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
             >
               {isSavingResponse ? 'Ukládám…' : 'Uložit odpověď'}

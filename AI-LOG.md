@@ -146,6 +146,22 @@ instrukci hned.
 navést agenta konkrétněji rovnou na začátku (např. odkázat na dokumentaci nebo dát 
 příklad správného použití), aby zbytečně dlouho netápal metodou pokus-omyl.
 
+### AI halucinace #3 — nezadaná funkce navíc (scope creep)
+
+Když jsem žádal převod filtru stavu/kategorie z rozbalovacích menu na toggle tlačítka, 
+Claude Code do UI přidal navíc i tlačítko "vymazat" pro rychlé zrušení aktivních filtrů 
+u každé skupiny. Nikde jsem o něm nemluvil — agent si to sám domyslel jako "dobrý nápad" 
+a přidal to bez zeptání.
+
+Nejde o rozbitý kód ani halucinovanou knihovnu jako v předchozích případech, ale o stejnou 
+kategorii problému: AI si přisadila vlastní scope nad rámec zadání. Není to nutně špatně 
+(funkce dává smysl), ale je to bezvýznamná/zbytečná iniciativa, kterou jsem nechtěl a 
+nezmínil — u produkčního review bych to bral jako věc k vyškrtnutí, ne k mlčky přijmutí.
+
+**Poučení pro příště:** i u malých UI úprav je potřeba kód po agentovi projít řádek po 
+řádku, ne jen otestovat, že to funguje — jinak se do projektu vplíží drobnosti, které jsem 
+nikdy neschválil.
+
 ---
 
 ## 7. Testy
