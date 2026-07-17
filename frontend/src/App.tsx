@@ -32,6 +32,12 @@ const CATEGORY_FILTER_OPTIONS: { value: TicketCategory; label: string }[] = [
   { value: 'Other', label: 'Other' },
 ];
 
+const PRIORITY_FILTER_OPTIONS: { value: Ticket['priority']; label: string }[] = [
+  { value: 'Low', label: 'Nízká' },
+  { value: 'Medium', label: 'Střední' },
+  { value: 'High', label: 'Vysoká' },
+];
+
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
   if (next.has(value)) {
@@ -73,6 +79,7 @@ function App() {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [statusFilter, setStatusFilter] = useState<Set<TicketStatus>>(new Set());
   const [categoryFilter, setCategoryFilter] = useState<Set<TicketCategory>>(new Set());
+  const [priorityFilter, setPriorityFilter] = useState<Set<Ticket['priority']>>(new Set());
 
   const loadTickets = async () => {
     setIsLoading(true);
@@ -97,9 +104,10 @@ function App() {
     return tickets.filter(
       (ticket) =>
         (statusFilter.size === 0 || statusFilter.has(ticket.status)) &&
-        (categoryFilter.size === 0 || categoryFilter.has(ticket.category)),
+        (categoryFilter.size === 0 || categoryFilter.has(ticket.category)) &&
+        (priorityFilter.size === 0 || priorityFilter.has(ticket.priority)),
     );
-  }, [tickets, statusFilter, categoryFilter]);
+  }, [tickets, statusFilter, categoryFilter, priorityFilter]);
 
   const sortedTickets = useMemo(() => sortTickets(filteredTickets, sortKey), [filteredTickets, sortKey]);
 
@@ -141,15 +149,12 @@ function App() {
     await loadTickets();
   };
 
-  const hasActiveFilter = statusFilter.size > 0 || categoryFilter.size > 0;
+  const hasActiveFilter = statusFilter.size > 0 || categoryFilter.size > 0 || priorityFilter.size > 0;
 
   return (
     <div className="mx-auto min-h-screen max-w-5xl px-4 py-10">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Mini Helpdesk</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Evidence IT ticketů s automatickou AI triáží.
-        </p>
+      <header className="mb-8 flex flex-col items-center gap-2 text-center">
+        <h1 className="text-4xl font-semibold text-slate-900 dark:text-slate-100">Mini Helpdesk</h1>
       </header>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -191,11 +196,10 @@ function App() {
                     type="button"
                     onClick={() => setStatusFilter((prev) => toggleInSet(prev, option.value))}
                     aria-pressed={isActive}
-                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                      isActive
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${isActive
                         ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
                         : 'border-slate-300 text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600'
-                    }`}
+                      }`}
                   >
                     {option.label}
                   </button>
@@ -213,11 +217,31 @@ function App() {
                     type="button"
                     onClick={() => setCategoryFilter((prev) => toggleInSet(prev, option.value))}
                     aria-pressed={isActive}
-                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                      isActive
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${isActive
                         ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
                         : 'border-slate-300 text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600'
-                    }`}
+                      }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Priorita:</span>
+              {PRIORITY_FILTER_OPTIONS.map((option) => {
+                const isActive = priorityFilter.has(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPriorityFilter((prev) => toggleInSet(prev, option.value))}
+                    aria-pressed={isActive}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${isActive
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                        : 'border-slate-300 text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600'
+                      }`}
                   >
                     {option.label}
                   </button>
