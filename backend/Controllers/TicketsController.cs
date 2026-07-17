@@ -22,21 +22,6 @@ public class TicketsController : ControllerBase
         _logger = logger;
     }
 
-    // DEBUG: docasny endpoint pro testovani promptu
-    [HttpPost("debug-triage")]
-    public async Task<ActionResult<TriageResponse>> DebugTriage([FromBody] string description)
-    {
-        try
-        {
-            var result = await _llmProvider.TriageAsync(description);
-            return new TriageResponse { Status = TriageStatus.Success, Result = result };
-        }
-        catch (LlmTriageException ex)
-        {
-            return new TriageResponse { Status = TriageStatus.Error, ErrorMessage = ex.Message };
-        }
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
     {
